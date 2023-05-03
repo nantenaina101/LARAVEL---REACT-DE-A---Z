@@ -1,0 +1,6 @@
+/react-project/node_modules
+/laravel-api/public/build
+/laravel-api/public/hot
+/laravel-api/public/storage
+/laravel-api/storage/*.key
+/laravel-api/vendor
