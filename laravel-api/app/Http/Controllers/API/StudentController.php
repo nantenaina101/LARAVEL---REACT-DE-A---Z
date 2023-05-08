@@ -41,7 +41,7 @@ class StudentController extends Controller
     /*
         Add one student
      */
-    public function save(Request $request)
+    public function save(Request $request, Student $student)
     {
 
         $body = $request->all();
@@ -76,7 +76,22 @@ class StudentController extends Controller
             );
         } else {
 
-            $student = Student::create($body);
+            $student->name = $request->name;
+            $student->course = $request->course;
+            $student->email = $request->email;
+    		$student->phone = $request->phone;
+
+            if ($request->hasFile('image')) {
+    			$file = $request->file('image');
+    			$extension = $file->getClientOriginalExtension();
+    			$fileName = time() . '.' . $extension;
+    			$file->move('../../react-project/public/uploads/', $fileName);
+    			$student->image = $fileName;
+    		}else{
+                $student->image = "img_avatar.png";
+            }
+
+            //$student = Student::create($body);
 
             /*Student::create([
                 "name" => $request->name,
@@ -85,20 +100,14 @@ class StudentController extends Controller
                 "phone" => $request->phone
             ]);*/
 
-            /*$student = new Student;
-            $student->name = $request->name; || $body['name']
-            $student->course = $request->course; || $body['course']
-            $student->email = $request->email; || $body['email']
-            $student->phone = $request->phone; || $body['phone']
+            $result = $student->save();
 
-            $result = $student->save();*/
-
-            if ($student) {
+            if ($result) {
                 return response()->json(
                     [
                         "status" => true,
                         "message" => "Etudiant enregistré avec succès !",
-                        "student" => $student
+                        "result" => $result
                     ],
                     200
                 );
@@ -107,7 +116,7 @@ class StudentController extends Controller
                     [
                         "status" => false,
                         "message" => "Quelque chose ne va pas !",
-                        "student" => $student
+                        "result" => $result
                     ],
                     500
                 );
@@ -146,6 +155,7 @@ class StudentController extends Controller
             return response()->json(
                 [
                     "status" => false,
+                    "students" => $body,
                     "message" => $validator->messages() //$validator->errors()
                 ],
                 422
@@ -161,6 +171,7 @@ class StudentController extends Controller
                 return response()->json(
                     [
                         "status" => true,
+                        "students" => $body,
                         "message" => "Etudiant modifié avec succès !"
                     ],
                     200
@@ -186,9 +197,18 @@ class StudentController extends Controller
         $result = null;
         $status = 500;
         if ($student) {
+
+            if($student->image != "img_avatar.png"){
+                $path = '../../react-project/public/uploads/'. $student->image;
+                if (\File::exists($path)) {
+                    \File::delete($path);
+                }
+            }
+
             $student->delete();
             $result = "Etudiant supprimé avec succès !";
             $status = 200;
+            
         } else {
             $result = "Aucun étudiant correspondant à cet identifiant";
             $status = 404;

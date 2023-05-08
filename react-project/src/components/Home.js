@@ -36,17 +36,18 @@ const Home = () => {
     let tbody_content = ""
     
     if (state.loading) {
-        tbody_content = <tr><td colSpan={6}>Chargement...</td></tr>
+        tbody_content = <tr><td colSpan={7}>Chargement...</td></tr>
     } else {
         if (state.student.length > 0) {
             tbody_content = state.student.map((item,index) => {
                 return (
-                    <tr key={item.id} align="middle">
+                    <tr key={item.id} className="align-middle">
                         <td>{index + 1}</td>
                         <td>{item.name}</td>
                         <td>{item.course}</td>
                         <td>{item.email}</td>
                         <td>{item.phone}</td>
+                        <td style={{textAlign:"center"}}>{item.image ? <img src={"/uploads/"+item.image} width='50' className='img-thumbnail' /> : <img src='/uploads/img_avatar.png' width='50' className='img-thumbnail' />}</td>
                         <td>
                             <Link to={'update/' + item.id} className="btn btn-success btn-sm">Modifier</Link>
                             &nbsp;&nbsp;
@@ -56,7 +57,7 @@ const Home = () => {
                 );
             });
         } else {
-            tbody_content = <tr><td className="text-center" colSpan={6}>Aucun enregistrement</td></tr>
+            tbody_content = <tr><td className="text-center" colSpan={7}>Aucun enregistrement</td></tr>
         }
         
     }
@@ -80,6 +81,7 @@ const Home = () => {
                                             <th>Cours</th>
                                             <th>Email</th>
                                             <th>Téléphone</th>
+                                            <th>Photo</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
