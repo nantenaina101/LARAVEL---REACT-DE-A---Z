@@ -16,10 +16,10 @@ function App() {
         <Header />
         <Routes>
           <Route path='/' exact element={<Home />} />
-          <Route path='/add' exact element={<Add />} />
-          <Route path='/update/:id' exact element={<Update />} />
-          <Route path='/about' exact element={<About />} />
-          <Route path='/contact' exact element={<Contact />} />
+          <Route path='/add' element={<Add />} />
+          <Route path='/update/:id' element={<Update />} />
+          <Route path='/about' element={<About />} />
+          <Route path='/contact' element={<Contact />} />
         </Routes>
         <Footer />
       </BrowserRouter>

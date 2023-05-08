@@ -51,7 +51,6 @@ class StudentController extends Controller
             "course" => 'required',
             "email" => 'required|email|max:50|unique:students',
             "phone" => 'required'
-            //"phone" => 'required|digits:20'
         ],
     	[
     		'name.required' => 'Le nom est obligatoire',
@@ -70,7 +69,7 @@ class StudentController extends Controller
             return response()->json(
                 [
                     "status" => false,
-                    "message" => $validator->messages() //$validator->errors()
+                    "message" => $validator->messages()
                 ],
                 422
             );
@@ -137,7 +136,6 @@ class StudentController extends Controller
             "course" => 'required',
             "email" => 'required|email|max:50',
             "phone" => 'required'
-            //"phone" => 'required|digits:20'
         ],
     	[
     		'name.required' => 'Le nom est obligatoire',
@@ -156,7 +154,7 @@ class StudentController extends Controller
                 [
                     "status" => false,
                     "students" => $body,
-                    "message" => $validator->messages() //$validator->errors()
+                    "message" => $validator->messages()
                 ],
                 422
             );
@@ -166,7 +164,29 @@ class StudentController extends Controller
 
             if ($student) {
 
-                $student->update($request->all());
+                $student->name = $request->name;
+                $student->course = $request->course;
+                $student->email = $request->email;
+                $student->phone = $request->phone;
+
+                if ($request->hasFile('image')) {
+
+                    if($student->image != "img_avatar.png"){
+                        $path = '../../react-project/public/uploads/'. $student->image;
+                        if (\File::exists($path)) {
+                            \File::delete($path);
+                        }
+                    }
+
+                    $file = $request->file('image');
+                    $extension = $file->getClientOriginalExtension();
+                    $fileName = time() . '.' . $extension;
+                    $file->move('../../react-project/public/uploads/', $fileName);
+                    $student->image = $fileName;
+
+                }
+
+                $student->update();
 
                 return response()->json(
                     [

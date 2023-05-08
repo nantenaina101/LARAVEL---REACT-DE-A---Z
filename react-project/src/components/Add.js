@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 
 import { Link, useNavigate } from "react-router-dom";
 
@@ -8,16 +8,15 @@ const Add = () => {
     
     const navigate = useNavigate();
     
-    const [succes, setSucces] = useState({message : "", color : ""});
-    
-    const [state, setState] = useState({
-        name : "", course : "", email : "", phone : "", image: "", imgUrl : null
-    });
+    const [state, setState] = useState({student : {
+        name : "", course : "", email : "", phone : "", image: ""
+    }, imgUrl : null, successResponse : {message : "", color : ""}});
     
     const [validateName, setValidateName] = useState("");
     const [validateCourse, setValidateCourse] = useState("");
     const [validateEmail, setValidateEmail] = useState("");
     const [validatePhone, setValidatePhone] = useState("");
+    let fileRef = useRef(null)
     
     const saveStudent = (e) => {
         e.preventDefault();
@@ -29,25 +28,26 @@ const Add = () => {
         
         const formData = new FormData()
 
-        formData.append('name', state.name)
+        formData.append('name', state.student.name)
 
-        formData.append('course', state.course)
+        formData.append('course', state.student.course)
 
-        formData.append('email', state.email)
+        formData.append('email', state.student.email)
 
-        formData.append('phone', state.phone)
+        formData.append('phone', state.student.phone)
 
-        formData.append('image', state.image)
+        formData.append('image', state.student.image)
 
-        //API.post("student", state)
         API.post("student", formData, {})
             .then(result => {
                 console.log(result.data.message);
-                setSucces({ message: result.data.message, color: "success" })
-                
-                setState({
-                    name : "", course : "", email : "", phone : "", image: "", imgUrl : null
-                });
+                setState({ 
+                    student:{name : "", course : "", email : "", phone : "", image: ""},
+                    imgUrl : null,
+                    successResponse: {message : result.data.message, color: "success"}
+                })
+
+                fileRef.current.value = null;
                 
                 setTimeout(function () {
                     navigate("/");
@@ -83,17 +83,19 @@ const Add = () => {
         if(!e.target.files){
             const value = e.target.value;
             setState({
-               ...state,
-               [e.target.name]: value,
+                ...state,
+                student : {
+                    ...state.student,
+                    [e.target.name]: value,
+                 }
             });
          }else{
             setState({
-               ...state,
-               image:e.target.files[0],
-               imgURL:URL.createObjectURL(e.target.files[0])
+               student:{...state.student, image : e.target.files[0]},
+               imgURL:URL.createObjectURL(e.target.files[0]),
+               successResponse : {message : "", color : ""}
             });
          }
-        //setState({ ...state, [e.target.name]: e.target.value });
     }
     
     return (
@@ -107,32 +109,32 @@ const Add = () => {
                             </h4>
                             
                             <div className="mt-4">
-                                {succes.message && <div className={"text-white h6 w-50 p-2 bg-" + succes.color}>{succes.message}</div>}
+                                {state.successResponse && <div className={"text-white h6 w-50 p-2 bg-" + state.successResponse.color}>{state.successResponse.message}</div>}
                                 <form onSubmit = {saveStudent} className="row">
                                     <div className="form-group mb-3 col-6">
                                         <label>Nom</label>
-                                        <input type="text" name="name" value={state.name} onChange={handleInput} className="form-control" />
+                                        <input type="text" name="name" value={state.student.name} onChange={handleInput} className="form-control" />
                                     { validateName && <span className="text-danger small">{validateName}</span>}
                                     </div>
                                     <div className="form-group mb-3 col-6">
                                         <label>Cours</label>
-                                        <input type="text" name="course" value={state.course} onChange={handleInput} className="form-control"/>
+                                        <input type="text" name="course" value={state.student.course} onChange={handleInput} className="form-control"/>
                                         { validateCourse && <span className="text-danger small">{validateCourse}</span>}
                                     </div>
                                     <div className="form-group mb-3 col-6">
                                         <label>Email</label>
-                                        <input type="email" name="email" value={state.email} onChange={handleInput} className="form-control"/>
+                                        <input type="email" name="email" value={state.student.email} onChange={handleInput} className="form-control"/>
                                         { validateEmail && <span className="text-danger small">{validateEmail}</span>}
                                     </div>
                                     <div className="form-group mb-3 col-6">
                                         <label>Téléphone</label>
-                                        <input type="text" name="phone" value={state.phone} onChange={handleInput} className="form-control"/>
+                                        <input type="text" name="phone" value={state.student.phone} onChange={handleInput} className="form-control"/>
                                         { validatePhone && <span className="text-danger small">{validatePhone}</span>}
                                     </div>
 
                                     <div className="form-group mb-3 col-6">
                                         <label>Photo</label>
-                                        <input type="file" name="image" onChange={handleInput} className="form-control" accept="image/*"/>
+                                        <input type="file" name="image" ref={fileRef} onChange={handleInput} className="form-control" accept="image/*"/>
                                     </div>
                                     {
                                     state.imgURL && 
